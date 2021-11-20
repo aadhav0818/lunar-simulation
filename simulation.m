@@ -5,6 +5,8 @@ classdef rocket_simulation < matlab.apps.AppBase
         UIFigure                        matlab.ui.Figure
         TabGroup2                       matlab.ui.container.TabGroup
         StageTrackerTab                 matlab.ui.container.Tab
+        WARNINGSLabel                   matlab.ui.control.Label
+        Label_2                         matlab.ui.control.Label
         LOCATIONLabel                   matlab.ui.control.Label
         STATUSLabel                     matlab.ui.control.Label
         NEXTSTAGELabel                  matlab.ui.control.Label
@@ -70,6 +72,86 @@ classdef rocket_simulation < matlab.apps.AppBase
             app.velocity = 0;
             app.height = 0;
             app.time_elapsed = 0;
+            app.rocket_mass = 0;
+            app.payload_mass = 0;
+            app.mass_expulsion_rate = 0;
+            app.relative_velocity = 0;
+            app.gravity = 0;
+
+            app.WARNINGSLabel.Text = "WARNINGS: NONE"
+            app.ROCKETMASSLabel.Text = "ROCKET MASS: " + string(app.rocket_mass) + "kg";
+            app.PAYLOADMASSLabel.Text = "PAYLOAD MASS: " + string(app.payload_mass) + "kg";
+            app.GRAVITATIONLabel.Text = "GRAVITATION: " + string(app.gravity) + "m/s";
+            app.MASSEXPUSLIONRATELabel.Text = "MASS EXPULSION RATE: " + string(app.mass_expulsion_rate) + "kg/s";
+            app.RELATIVEVELOCITYLabel.Text = "RELATIVE VELOCITY: " + string(app.relative_velocity) + "m/s";
+        end
+
+        % Button pushed function: StartSimulationButton
+        function StartSimulationButtonPushed(app, event)
+            app.Lamp.Color = "Green";
+            for ii = 0:0.1:100
+                app.time_elapsed = ii;
+                app.TimeElapsedGauge.Value = app.time_elapsed;
+                app.TIMEELAPSEDLabel.Text = "TIME ELAPSED: " + string(app.time_elapsed) + "s";
+
+                %VISUALISE DATA AND START SIMULATION
+
+                g = app.gravity;
+                t = app.time_elapsed;
+                U = app.relative_velocity;
+                M0 = app.rocket_mass;
+                m = app.payload_mass;
+                R = app.mass_expulsion_rate;
+
+                v = -g.*t+U*(log((M0+m)./(M0+m-R.*t)))
+                if isnan(v) == 1
+                    app.WARNINGSLabel.Text = "WARNINGS: INVALID CONFIGURATIONS";
+                    app.Lamp.Color = "Red";
+                    break;
+                else 
+                    app.Lamp.Color = "Green";
+                    app.VelocityAirspeedIndicator.Value = v;
+                    app.WARNINGSLabel.Text = "WARNINGS: NONE";
+                end
+                pause(0.1);
+            end
+            app.Lamp.Color = "Red";
+
+        end
+
+        % Value changed function: RocketMasskgSpinner
+        function RocketMasskgSpinnerValueChanged(app, event)
+            value = app.RocketMasskgSpinner.Value;
+            app.rocket_mass = value;
+            app.ROCKETMASSLabel.Text = "ROCKET MASS: " + string(value) + "kg";
+        end
+
+        % Value changed function: PayloadMasskgSpinner
+        function PayloadMasskgSpinnerValueChanged(app, event)
+            value = app.PayloadMasskgSpinner.Value;
+            app.payload_mass = value;
+            app.PAYLOADMASSLabel.Text = "PAYLOAD MASS: " + string(value) + "kg";
+        end
+
+        % Value changed function: GravitationmsSpinner
+        function GravitationmsSpinnerValueChanged(app, event)
+            value = app.GravitationmsSpinner.Value;
+            app.gravity = value;
+            app.GRAVITATIONLabel.Text = "GRAVITATION: " + string(value) + "m/s";
+        end
+
+        % Value changed function: MERatekgsSpinner
+        function MERatekgsSpinnerValueChanged(app, event)
+            value = app.MERatekgsSpinner.Value;
+            app.mass_expulsion_rate = value;
+            app.MASSEXPUSLIONRATELabel.Text = "MASS EXPULSION RATE: " + string(value) + "kg/s";
+        end
+
+        % Value changed function: RelativeVelocitymsSpinner
+        function RelativeVelocitymsSpinnerValueChanged(app, event)
+            value = app.RelativeVelocitymsSpinner.Value;
+            app.relative_velocity = value;
+            app.RELATIVEVELOCITYLabel.Text = "RELATIVE VELOCITY: " + string(value) + "m/s";
         end
     end
 
@@ -144,6 +226,7 @@ classdef rocket_simulation < matlab.apps.AppBase
 
             % Create RocketMasskgSpinner
             app.RocketMasskgSpinner = uispinner(app.PayloadsTab);
+            app.RocketMasskgSpinner.ValueChangedFcn = createCallbackFcn(app, @RocketMasskgSpinnerValueChanged, true);
             app.RocketMasskgSpinner.Position = [144 50 100 22];
 
             % Create PayloadMasskgSpinnerLabel
@@ -154,6 +237,7 @@ classdef rocket_simulation < matlab.apps.AppBase
 
             % Create PayloadMasskgSpinner
             app.PayloadMasskgSpinner = uispinner(app.PayloadsTab);
+            app.PayloadMasskgSpinner.ValueChangedFcn = createCallbackFcn(app, @PayloadMasskgSpinnerValueChanged, true);
             app.PayloadMasskgSpinner.Position = [145 21 100 22];
 
             % Create GravitationTab
@@ -168,6 +252,7 @@ classdef rocket_simulation < matlab.apps.AppBase
 
             % Create GravitationmsSpinner
             app.GravitationmsSpinner = uispinner(app.GravitationTab);
+            app.GravitationmsSpinner.ValueChangedFcn = createCallbackFcn(app, @GravitationmsSpinnerValueChanged, true);
             app.GravitationmsSpinner.Position = [139 31 100 22];
 
             % Create RatesTab
@@ -182,6 +267,7 @@ classdef rocket_simulation < matlab.apps.AppBase
 
             % Create MERatekgsSpinner
             app.MERatekgsSpinner = uispinner(app.RatesTab);
+            app.MERatekgsSpinner.ValueChangedFcn = createCallbackFcn(app, @MERatekgsSpinnerValueChanged, true);
             app.MERatekgsSpinner.Position = [150 50 100 22];
 
             % Create RelativeVelocitymsSpinnerLabel
@@ -192,10 +278,12 @@ classdef rocket_simulation < matlab.apps.AppBase
 
             % Create RelativeVelocitymsSpinner
             app.RelativeVelocitymsSpinner = uispinner(app.RatesTab);
+            app.RelativeVelocitymsSpinner.ValueChangedFcn = createCallbackFcn(app, @RelativeVelocitymsSpinnerValueChanged, true);
             app.RelativeVelocitymsSpinner.Position = [149 21 100 22];
 
             % Create StartSimulationButton
             app.StartSimulationButton = uibutton(app.UIFigure, 'push');
+            app.StartSimulationButton.ButtonPushedFcn = createCallbackFcn(app, @StartSimulationButtonPushed, true);
             app.StartSimulationButton.BackgroundColor = [0.8 0.8 0.8];
             app.StartSimulationButton.Position = [371 123 203 22];
             app.StartSimulationButton.Text = 'Start Simulation';
@@ -236,7 +324,7 @@ classdef rocket_simulation < matlab.apps.AppBase
 
             % Create Lamp
             app.Lamp = uilamp(app.StageTrackerTab);
-            app.Lamp.Position = [64 109 18 18];
+            app.Lamp.Position = [61 27 12 12];
             app.Lamp.Color = [0.902 0.902 0.902];
 
             % Create CURRENTSTAGELabel
@@ -254,14 +342,26 @@ classdef rocket_simulation < matlab.apps.AppBase
             % Create STATUSLabel
             app.STATUSLabel = uilabel(app.StageTrackerTab);
             app.STATUSLabel.FontWeight = 'bold';
-            app.STATUSLabel.Position = [8 107 59 22];
-            app.STATUSLabel.Text = 'STATUS: ';
+            app.STATUSLabel.Position = [7 22 56 22];
+            app.STATUSLabel.Text = 'STATUS:';
 
             % Create LOCATIONLabel
             app.LOCATIONLabel = uilabel(app.StageTrackerTab);
             app.LOCATIONLabel.FontWeight = 'bold';
-            app.LOCATIONLabel.Position = [9 86 75 22];
+            app.LOCATIONLabel.Position = [8 107 75 22];
             app.LOCATIONLabel.Text = 'LOCATION: ';
+
+            % Create Label_2
+            app.Label_2 = uilabel(app.StageTrackerTab);
+            app.Label_2.FontWeight = 'bold';
+            app.Label_2.Position = [6 65 25 22];
+            app.Label_2.Text = '';
+
+            % Create WARNINGSLabel
+            app.WARNINGSLabel = uilabel(app.StageTrackerTab);
+            app.WARNINGSLabel.FontWeight = 'bold';
+            app.WARNINGSLabel.Position = [7 1 263 22];
+            app.WARNINGSLabel.Text = 'WARNINGS: ';
 
             % Create DataTranscriptionTab
             app.DataTranscriptionTab = uitab(app.TabGroup2);
@@ -270,49 +370,49 @@ classdef rocket_simulation < matlab.apps.AppBase
             % Create VELOCITYLabel
             app.VELOCITYLabel = uilabel(app.DataTranscriptionTab);
             app.VELOCITYLabel.FontWeight = 'bold';
-            app.VELOCITYLabel.Position = [8 149 72 22];
+            app.VELOCITYLabel.Position = [8 149 262 22];
             app.VELOCITYLabel.Text = 'VELOCITY: ';
 
             % Create HEIGHTLabel
             app.HEIGHTLabel = uilabel(app.DataTranscriptionTab);
             app.HEIGHTLabel.FontWeight = 'bold';
-            app.HEIGHTLabel.Position = [8 128 53 22];
+            app.HEIGHTLabel.Position = [8 128 262 22];
             app.HEIGHTLabel.Text = 'HEIGHT:';
 
             % Create TIMEELAPSEDLabel
             app.TIMEELAPSEDLabel = uilabel(app.DataTranscriptionTab);
             app.TIMEELAPSEDLabel.FontWeight = 'bold';
-            app.TIMEELAPSEDLabel.Position = [8 107 102 22];
+            app.TIMEELAPSEDLabel.Position = [8 107 262 22];
             app.TIMEELAPSEDLabel.Text = 'TIME ELAPSED: ';
 
             % Create ROCKETMASSLabel
             app.ROCKETMASSLabel = uilabel(app.DataTranscriptionTab);
             app.ROCKETMASSLabel.FontWeight = 'bold';
-            app.ROCKETMASSLabel.Position = [9 86 98 22];
+            app.ROCKETMASSLabel.Position = [9 86 261 22];
             app.ROCKETMASSLabel.Text = 'ROCKET MASS:';
 
             % Create PAYLOADMASSLabel
             app.PAYLOADMASSLabel = uilabel(app.DataTranscriptionTab);
             app.PAYLOADMASSLabel.FontWeight = 'bold';
-            app.PAYLOADMASSLabel.Position = [9 65 108 22];
+            app.PAYLOADMASSLabel.Position = [9 65 261 22];
             app.PAYLOADMASSLabel.Text = 'PAYLOAD MASS: ';
 
             % Create GRAVITATIONLabel
             app.GRAVITATIONLabel = uilabel(app.DataTranscriptionTab);
             app.GRAVITATIONLabel.FontWeight = 'bold';
-            app.GRAVITATIONLabel.Position = [9 44 93 22];
+            app.GRAVITATIONLabel.Position = [9 44 262 22];
             app.GRAVITATIONLabel.Text = 'GRAVITATION: ';
 
             % Create MASSEXPUSLIONRATELabel
             app.MASSEXPUSLIONRATELabel = uilabel(app.DataTranscriptionTab);
             app.MASSEXPUSLIONRATELabel.FontWeight = 'bold';
-            app.MASSEXPUSLIONRATELabel.Position = [9 23 152 22];
+            app.MASSEXPUSLIONRATELabel.Position = [9 23 261 22];
             app.MASSEXPUSLIONRATELabel.Text = 'MASS EXPUSLION RATE:';
 
             % Create RELATIVEVELOCITYLabel
             app.RELATIVEVELOCITYLabel = uilabel(app.DataTranscriptionTab);
             app.RELATIVEVELOCITYLabel.FontWeight = 'bold';
-            app.RELATIVEVELOCITYLabel.Position = [8 2 130 22];
+            app.RELATIVEVELOCITYLabel.Position = [8 2 262 22];
             app.RELATIVEVELOCITYLabel.Text = 'RELATIVE VELOCITY:';
 
             % Show the figure after all components are created
