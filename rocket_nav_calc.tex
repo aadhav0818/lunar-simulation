@@ -1,0 +1,212 @@
+% This LaTeX was auto-generated from MATLAB code.
+% To make changes, update the MATLAB code and export to LaTeX again.
+
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epstopdf}
+\usepackage[table]{xcolor}
+\usepackage{matlab}
+
+\sloppy
+\epstopdfsetup{outdir=./}
+\graphicspath{ {./rocket_images/} }
+
+\matlabhastoc
+
+\begin{document}
+
+\label{T_DE443281}
+\matlabtitle{\textbf{Constructing and evaluating the Rocket Equation}}
+
+\begin{par}
+\begin{flushleft}
+Analysis and application of the rocket equation
+\end{flushleft}
+\end{par}
+
+\matlabtableofcontents{Table of Contents}
+\label{H_D8948597}
+\matlabheading{\textbf{Velocity as a function of time v(t)}}
+
+\label{H_DC89CA51}
+\matlabheadingthree{Declare and initialize variables}
+
+\begin{par}
+\hfill \break
+\end{par}
+
+\begin{matlabcode}
+warning('off');
+M0 =2800000;           % Inital Mass (kg)
+m = 28000;           % Payload Mass (kg)
+R = 25000;             % Mass Expulsion Rate (kg/s)
+U = 2200   ;              % Relative Velocity (m/s)
+g = 9.81;               % Force gravity (m/s^2)
+\end{matlabcode}
+
+\label{H_6C4C9C2F}
+\matlabheadingtwo{\textbf{Calculating Velocity}}
+
+\label{H_F7E993BC}
+\matlabheadingthree{Variables}
+
+\begin{par}
+$$\begin{array}{l}
+m_t =M_0 +m\\
+F=-g\left(M_0 +m-\mathrm{Rt}\right)
+\end{array}$$
+\end{par}
+
+\label{H_21ED1584}
+\matlabheadingthree{Substitute Variables}
+
+\begin{par}
+$$\begin{array}{l}
+\left(m_t -\mathrm{Rt}\right)\frac{dv}{dt}=F+RU\\
+\left(M_0 +m-Rt\right)\frac{dv}{dt}=-g\left(M_0 +m-\mathrm{Rt}\right)+RU
+\end{array}$$
+\end{par}
+
+\label{H_49A6D42A}
+\matlabheadingthree{Solve for \textit{dv }}
+
+\begin{par}
+$$\begin{array}{l}
+\frac{\textrm{dv}}{\textrm{dt}}=\frac{\left(-g\left(M_0 +m-\textrm{Rt}\right)+\textrm{RU}\right)}{\left(M_0 +m-\textrm{Rt}\right)}\\
+\textrm{dv}=-g+\frac{\textrm{RU}}{M_0 +m-\textrm{Rt}}\;\textrm{dt}
+\end{array}$$
+\end{par}
+
+\label{H_60881504}
+\matlabheadingthree{Integrate both sides to get \textit{v(t)}}
+
+\begin{par}
+$$\begin{array}{l}
+\textrm{dv}=\int \left(-g+\frac{\textrm{RU}}{M_0 +m-\textrm{Rt}}\right)\;\textrm{dt}\\
+v\left(t\right)=-\textrm{gt}-U\cdot \ln \left(M_0 +m-\textrm{Rt}\right)+C
+\end{array}$$
+\end{par}
+
+\label{H_BFCC3F2F}
+\matlabheadingthree{Determine the constant (using initial conditions)}
+
+\begin{par}
+$$\begin{array}{l}
+v\left(0\right)=0-U\cdot \ln \left(M_0 +m\right)+C\\
+C=U\cdot \ln \left(M_0 +m\right)\;
+\end{array}$$ 
+\end{par}
+
+\label{H_4C12F541}
+\matlabheadingthree{Formulate final equation}
+
+\begin{par}
+$$\;v\left(t\right)=-\textrm{gt}+U\cdot \;\ln \left(\frac{M_0 +m}{M_0 +m-\textrm{Rt}}\right)$$    
+\end{par}
+
+\label{H_9DFFE471}
+\matlabheadingtwo{Velocity Calculation}
+
+\begin{matlabcode}
+t = 60;                % Time (s)
+v = -g.*t+U.*(log((M0+m)./(M0+m-R.*t)))        % Velocity (m/s)
+\end{matlabcode}
+\begin{matlaboutput}
+v = 1.0744e+03
+\end{matlaboutput}
+
+\label{H_2E525507}
+\matlabheading{Displacement as a function of time x(t)}
+
+\label{H_0ED06193}
+\matlabheadingthree{Integrate the function for velocity to find displacement}
+
+\begin{par}
+$$\begin{array}{l}
+\textrm{dx}=\int \left(\left(-\textrm{gt}+U\cdot \;\ln \left(\frac{M_0 +m}{M_0 +m-\textrm{Rt}}\right)\right.\right)\textrm{dt}\begin{array}{l}
+\\
+\;\\
+
+\end{array}\\
+\textrm{dx}=\int \left(-\textrm{gt}+U\cdot \;\ln \left(M_0 +m\right)-U\cdot \ln \left(M_0 +m-\textrm{Rt}\right)\right)\textrm{dt}\begin{array}{l}
+\\
+\;\\
+
+\end{array}\\
+\textrm{Assume}\;\textrm{that}\;y=M_0 +m-\textrm{Rt},\textrm{then}\;\frac{\textrm{dy}}{\textrm{dt}}=-R\;\textrm{and}\;\textrm{dt}=-\frac{\textrm{dy}}{R}\\
+\int \ln \left(M_0 +m-\textrm{Rt}\right)\cdot \textrm{dt}=-\frac{1}{R}\int \ln \left(y\right)\cdot \;\textrm{dy}=-\frac{1}{R}\left(y\cdot \ln \left(y\right)-y\right)=-\frac{M_0 +m-\textrm{Rt}}{R}\left(\ln \left(M_0 +m-\textrm{Rt}\right)-1\right)\;\\
+x=\frac{-{\textrm{gt}}^2 }{2}+\textrm{Ut}\cdot \ln \left(M_0 +m\right)+\frac{U\left(M_0 +m-\textrm{Rt}\right)}{R}\left(\ln \left(M_0 +m-\textrm{Rt}\right)-1\right)+C
+\end{array}$$
+\end{par}
+
+\label{H_7A118680}
+\matlabheadingthree{Determine the constant (using initial conditions)}
+
+\begin{par}
+$$\begin{array}{l}
+x\left(0\right)=0\\
+0=\frac{U\left(M_0 +m\right)}{R}\left(\ln \left(M_0 +m\right)-1\right)+C\\
+C=-\;\frac{U\left(M_0 +m\right)}{R}\left(\ln \left(M_0 +m\right)-1\right)
+\end{array}$$
+\end{par}
+
+\label{H_9DDD1114}
+\matlabheadingthree{Formulate final equation}
+
+\begin{par}
+\begin{flushleft}
+$x\left(t\right)=\frac{-{\textrm{gt}}^2 }{2}+\textrm{Ut}\cdot \ln \left(M_0 +m\right)+\frac{U\left(M_0 +m-\textrm{Rt}\right)}{R}\cdot \;\left(\ln \left(M_0 +m-\textrm{Rt}\right)-1\right)$- $\frac{U\left(M_0 +m\right)}{R}\left(\ln \left(M_0 +m\right)-1\right)$
+\end{flushleft}
+\end{par}
+
+\label{H_843131E0}
+\matlabheadingtwo{Displacement Calculation}
+
+\begin{matlabcode}
+t = 0;   % Time (s)
+x = (-g.*t.^2)./2+U.*t.*log(M0+m)+((U.*(M0+m-R.*t))./R).*(log(M0+m-R.*t)-1)-(U.*(M0+m)./R).*(log(M0+m)-1)
+\end{matlabcode}
+\begin{matlaboutput}
+x = 0
+\end{matlaboutput}
+
+
+\vspace{1em}
+\label{H_8E25BACA}
+\matlabheading{Graphing v(t) and x(t)}
+
+\begin{matlabcode}
+t = 0:300;
+v = -g.*t+U*(log((M0+m)./(M0+m-R.*t)));
+plot(t, v)
+xlabel("Time (s)");
+ylabel("Velocity (m/s)");
+title("Velocity vs. Time");
+grid on;
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{56.196688409433015em}]{figure_0.png}
+\end{center}
+\begin{matlabcode}
+
+figure(2)
+x = (-g.*t.^2)./2+U.*t.*log(M0+m)+((U.*(M0+m-R.*t))./R).*(log(M0+m-R.*t)-1)-(U.*(M0+m)./R).*(log(M0+m)-1);
+plot(t, x)
+xlabel("Time (s)");
+ylabel("Displacement (m)");
+title("Displacement vs. Time");
+grid on;
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{56.196688409433015em}]{figure_1.png}
+\end{center}
+
+\end{document}
