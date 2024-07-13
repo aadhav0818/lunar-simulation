@@ -1,0 +1,526 @@
+% This LaTeX was auto-generated from MATLAB code.
+% To make changes, update the MATLAB code and export to LaTeX again.
+
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epstopdf}
+\usepackage[table]{xcolor}
+\usepackage{matlab}
+
+\sloppy
+\epstopdfsetup{outdir=./}
+\graphicspath{ {./spacecraft_nav_calc_images/} }
+
+\begin{document}
+
+\label{T_DE443281}
+\matlabtitle{\textbf{Computing Spacecraft Navigation}}
+
+\begin{par}
+\begin{flushleft}
+Math describing the spacecraft's position in space upon orbit
+\end{flushleft}
+\end{par}
+
+\label{H_D8948597}
+\matlabheading{\textbf{Calculating the Orbit }}
+
+\label{H_DC89CA51}
+\matlabheadingthree{Declare and initialize variables}
+
+\begin{par}
+\hfill \break
+\end{par}
+
+\begin{matlabcode}
+m = 40339620;      %kg
+t1 = 142;                                     %s        %COMPUTED FROM ROCKET.MLX
+h0e = 300000;                                %m
+Re = 6.371*10.^6;                           %m
+Rm = 1.73744 * 10.^6                        %m
+\end{matlabcode}
+\begin{matlaboutput}
+Rm = 1737440
+\end{matlaboutput}
+\begin{matlabcode}
+RP = 356.5 * 10.^6                          %m
+\end{matlabcode}
+\begin{matlaboutput}
+RP = 356500000
+\end{matlaboutput}
+\begin{matlabcode}
+RA = 406.7 * 10.^6                          %m
+\end{matlabcode}
+\begin{matlaboutput}
+RA = 406700000
+\end{matlaboutput}
+\begin{matlabcode}
+Me = 5.976*10.^24;                          %kg
+G = 6.673*10.^11                            %Nm^2kg
+\end{matlabcode}
+\begin{matlaboutput}
+G = 6.6730e+11
+\end{matlaboutput}
+\begin{matlabcode}
+g = 9.82;                                   %m/s^2
+gm = 1.625;                                 %m/s^2
+Nse = 3                  %Number of steps to navigate to the transition
+\end{matlabcode}
+\begin{matlaboutput}
+Nse = 3
+\end{matlaboutput}
+\begin{matlabcode}
+dt = 60                   %Time required to accelerate 
+\end{matlabcode}
+\begin{matlaboutput}
+dt = 60
+\end{matlaboutput}
+\begin{matlabcode}
+
+h0m = 110*10.^3                             %height to land to the moon (Apollo 11)
+\end{matlabcode}
+\begin{matlaboutput}
+h0m = 110000
+\end{matlaboutput}
+\begin{matlabcode}
+dhl0 = 0.1*h0m;
+Nsm = 3                  %Number of steps to navigate to the transition to the moon
+\end{matlabcode}
+\begin{matlaboutput}
+Nsm = 3
+\end{matlaboutput}
+\begin{matlabcode}
+
+\end{matlabcode}
+
+\matlabheadingthree{Initial Step}
+
+\begin{par}
+\hfill \break
+\end{par}
+
+\begin{matlabcode}
+r0e = h0e + Re;
+r0m = h0m + Rm;
+c2 = 1-((gm.*Rm.^2)./(g .* Re.^2))
+\end{matlabcode}
+\begin{matlaboutput}
+c2 = 0.9877
+\end{matlaboutput}
+\begin{matlabcode}
+c1 = -2*RP
+\end{matlabcode}
+\begin{matlaboutput}
+c1 = -713000000
+\end{matlaboutput}
+\begin{matlabcode}
+c0 = RP.^2;
+re = roots([c2, c1, c0])
+\end{matlabcode}
+\begin{matlaboutput}
+re = 2x1    
+1.0e+08 *
+
+    4.0098
+    3.2090
+
+\end{matlaboutput}
+\begin{matlabcode}
+rt = re(re < RP)
+\end{matlabcode}
+\begin{matlaboutput}
+rt = 3.2090e+08
+\end{matlaboutput}
+\begin{matlabcode}
+hte = rt - r0e                               %Total distance to navigate from the earth to transition
+\end{matlabcode}
+\begin{matlaboutput}
+hte = 3.1423e+08
+\end{matlaboutput}
+\begin{matlabcode}
+htm = RP - rt- r0m                               %Total distance to navigate from the transition to moon
+\end{matlabcode}
+\begin{matlaboutput}
+htm = 3.3752e+07
+\end{matlaboutput}
+\begin{matlabcode}
+dhe = hte ./ Nse      
+\end{matlabcode}
+\begin{matlaboutput}
+dhe = 1.0474e+08
+\end{matlaboutput}
+\begin{matlabcode}
+dhm = htm ./ Nsm
+\end{matlabcode}
+\begin{matlaboutput}
+dhm = 1.1251e+07
+\end{matlaboutput}
+\begin{matlabcode}
+
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+\textbf{Navigation from the earth to the transition}
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+he = zeros(Nse+1, 1);                            %Distance from the earth
+rpe = zeros(Nse+1, 1);
+rae = zeros(Nse+1, 1);
+vpe = zeros(Nse+1, 1);
+vae = zeros(Nse+1, 1);
+dve = zeros(Nse+1, 1);
+ae = zeros(Nse+1, 1);
+Fe = zeros(Nse+1, 1);
+for ii = 1:Nse+1
+    he(ii) = h0e + (ii-1) * dhe;
+    rpe(ii) = he(ii) + Re;
+    rae(ii) = rpe(ii) + dhe;
+    vpe(ii) = sqrt(2.*g.*Re.^2.*(1./rpe(ii)-1./rae(ii))./(1-(rpe(ii)./rae(ii)).^2));
+    vae(ii) = (vpe(ii).*rpe(ii))./rae(ii);
+    if ii==1
+        dve(ii) = vpe(ii);
+    else
+        dve(ii) = vpe(ii)-vae(ii-1);
+    end
+    ae(ii) = dve(ii) ./ dt;
+    Fe(ii) = ae(ii) * m;
+end
+he'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+08 *
+
+    0.0030    1.0504    2.0979    3.1453
+
+\end{matlaboutput}
+\begin{matlabcode}
+rpe'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+08 *
+
+    0.0667    1.1141    2.1616    3.2090
+
+\end{matlaboutput}
+\begin{matlabcode}
+rae'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+08 *
+
+    1.1141    2.1616    3.2090    4.2564
+
+\end{matlaboutput}
+\begin{matlabcode}
+vpe'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+04 *
+
+    1.0618    0.2173    0.1484    0.1190
+
+\end{matlaboutput}
+\begin{matlabcode}
+vae'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+03 *
+
+    0.6358    1.1200    0.9999    0.8972
+
+\end{matlaboutput}
+\begin{matlabcode}
+dve'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+04 *
+
+    1.0618    0.1537    0.0364    0.0190
+
+\end{matlaboutput}
+\begin{matlabcode}
+ae'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+  176.9718   25.6187    6.0746    3.1698
+
+\end{matlaboutput}
+\begin{matlabcode}
+Fe'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+09 *
+
+    7.1390    1.0334    0.2450    0.1279
+
+\end{matlaboutput}
+\begin{matlabcode}
+sum(Fe)
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 8.5453e+09
+\end{matlaboutput}
+
+\matlabheadingthree{\textbf{Navigation from the transition to the moon   }}
+
+\begin{par}
+\hfill \break
+\end{par}
+
+\begin{matlabcode}
+hm = zeros(Nsm+1, 1);                            
+rpm = zeros(Nsm+1, 1);
+ram = zeros(Nsm+1, 1);
+vpm = zeros(Nsm+1, 1);
+vam = zeros(Nsm+1, 1);
+dvm = zeros(Nsm+1, 1);
+am = zeros(Nsm+1, 1);
+Fm = zeros(Nsm+1, 1);
+for ii = 1:Nsm+1
+    hm(ii) = (htm + h0m) - (ii-1) * dhm;  
+    rpm(ii) = Rm + hm(ii) - dhm;
+    ram(ii) = hm(ii) + Rm;
+    vpm(ii) = sqrt(2.*gm.*Rm.^2.*(1./rpm(ii)-1./ram(ii))./(1-(rpm(ii)./ram(ii)).^2));
+    vam(ii) = (vpm(ii).*rpm(ii))./ram(ii);
+    if ii==1
+        dvm(ii) = vam(ii) - vae(end,1);
+    else
+        dvm(ii) = vam(ii)-vpm(ii);
+    end
+    am(ii) = dvm(ii) ./ dt;
+    Fm(ii) = am(ii) * m;
+end
+
+hm
+\end{matlabcode}
+\begin{matlaboutput}
+hm = 4x1    
+1.0e+07 *
+
+    3.3862
+    2.2611
+    1.1361
+    0.0110
+
+\end{matlaboutput}
+\begin{matlabcode}
+rpm'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+07 *
+
+    2.4349    1.3098    0.1847   -0.9403
+
+\end{matlaboutput}
+\begin{matlabcode}
+ram'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+07 *
+
+    3.5599    2.4349    1.3098    0.1847
+
+\end{matlaboutput}
+\begin{matlabcode}
+vpm'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+03 *
+
+    0.4892    0.6979    2.1573    0.5051
+
+\end{matlaboutput}
+\begin{matlabcode}
+vam'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+03 *
+
+    0.3346    0.3754    0.3043   -2.5708
+
+\end{matlaboutput}
+\begin{matlabcode}
+dvm'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+03 *
+
+   -0.5627   -0.3225   -1.8530   -3.0759
+
+\end{matlaboutput}
+\begin{matlabcode}
+am'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+   -9.3781   -5.3744  -30.8840  -51.2643
+
+\end{matlaboutput}
+\begin{matlabcode}
+Fm'
+\end{matlabcode}
+\begin{matlaboutput}
+ans = 1x4    
+1.0e+09 *
+
+   -0.3783   -0.2168   -1.2458   -2.0680
+
+\end{matlaboutput}
+\begin{matlabcode}
+sum(Fm)
+\end{matlabcode}
+\begin{matlaboutput}
+ans = -3.9089e+09
+\end{matlaboutput}
+
+\begin{par}
+\begin{flushleft}
+\textbf{Descent }
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+tl0 = sqrt(2*dhl0 ./ gm)
+\end{matlabcode}
+\begin{matlaboutput}
+tl0 = 116.3549
+\end{matlaboutput}
+\begin{matlabcode}
+
+vl0 = 0
+\end{matlabcode}
+\begin{matlaboutput}
+vl0 = 0
+\end{matlaboutput}
+\begin{matlabcode}
+vl1 = vl0 + gm*tl0
+\end{matlabcode}
+\begin{matlaboutput}
+vl1 = 189.0767
+\end{matlaboutput}
+\begin{matlabcode}
+
+dhl1 = h0m - dhl0;
+
+Fr = m*((gm*tl0).^2/(2*dhl1) + gm)
+\end{matlabcode}
+\begin{matlaboutput}
+Fr = 72835425
+\end{matlaboutput}
+\begin{matlabcode}
+
+tl1 = (gm*tl0)./(-gm+(Fr/m))
+\end{matlabcode}
+\begin{matlaboutput}
+tl1 = 1.0472e+03
+\end{matlaboutput}
+\begin{matlabcode}
+
+tlt = tl0 + tl1
+\end{matlabcode}
+\begin{matlaboutput}
+tlt = 1.1635e+03
+\end{matlaboutput}
+\begin{matlabcode}
+
+Np = 100;
+hl = zeros(Np, 1);
+tl = zeros(Np, 1);
+vl = zeros(Np, 1);
+
+for jj = 1:Np
+    tl(jj, 1) = (jj-1) * (tlt ./ (Np - 1));
+    if (tl(jj, 1) <= tl0)
+        a = gm;
+        hl(jj, 1) = h0m - (vl0 * tl(jj, 1) + 0.5.*a.*tl(jj, 1).^2);
+        vl(jj, 1) = vl0 + a .* tl(jj, 1);
+    else
+        a = (gm-Fr./m);
+        hl(jj, 1) = (h0m - dhl0) - (vl1 * (tl(jj, 1) - tl0) + 0.5.*a.*(tl(jj, 1)-tl0).^2);
+        vl(jj, 1) = vl1 + a .* tl(jj, 1);
+    end
+end
+hl
+\end{matlabcode}
+\begin{matlaboutput}
+hl = 100x1    
+1.0e+05 *
+
+    1.1000
+    1.0989
+    1.0955
+    1.0899
+    1.0820
+    1.0719
+    1.0596
+    1.0450
+    1.0282
+    1.0091
+
+\end{matlaboutput}
+\begin{matlabcode}
+tl
+\end{matlabcode}
+\begin{matlaboutput}
+tl = 100x1    
+1.0e+03 *
+
+         0
+    0.0118
+    0.0235
+    0.0353
+    0.0470
+    0.0588
+    0.0705
+    0.0823
+    0.0940
+    0.1058
+
+\end{matlaboutput}
+\begin{matlabcode}
+h0m
+\end{matlabcode}
+\begin{matlaboutput}
+h0m = 110000
+\end{matlaboutput}
+\begin{matlabcode}
+plot(tl, hl);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{56.196688409433015em}]{figure_0.png}
+\end{center}
+\begin{matlabcode}
+plot(tl, vl);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{56.196688409433015em}]{figure_1.png}
+\end{center}
+\begin{matlabcode}
+
+\end{matlabcode}
+
+\end{document}
