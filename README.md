@@ -24,3 +24,22 @@
 ## Programming 
 - Each stage of the misson has its own testing file that neatly documents the physics calculations line by line (mlx file).
 - This application was programmed in MATLAB R2021b, so errors may be present if any of the code is loaded on a more recent version.
+
+## Variables
+- Initial conditions are formulated from the following variables:
+```matlab
+g = app.gravity;
+gm = app.moon_gravity;
+U = app.relative_velocity;
+M0 = app.rocket_mass;
+m = app.payload_mass;
+R = app.mass_expulsion_rate;
+h0m = app.stage3_landing;
+h0e = app.stage1_deployment;
+Rm = app.radius_moon;
+Re = app.radius_earth;
+RP = app.perigee_moon;
+RA = app.apogee_moon;
+Nse = app.orbits_earth_transition;
+Nsm = app.orbits_transition_moon;
+```
