@@ -5,7 +5,6 @@
 - Simulates all three stages of a lunar mission (launch, orbit, and lunar descent) in a MATLAB GUI.
 - Contains files related to the mathematical calculations (provided in LaTeX format) and computing behind each step.
 - Graphically visualizes the launch trajectory and position of a spacecraft throughout the duration of a standard lunar mission.
-- Programmed and built in 2021.
 
 > MLX (live script) files are provided with a LaTeX text transcription in this repository.
 
