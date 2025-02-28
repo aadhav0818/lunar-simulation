@@ -1,4 +1,4 @@
 1. Copy and paste or download the MATLAB code from "simulation_final_code.m".
-2. Launch MATLAB R2021b or a version developed after and upload the contents of the file into the GUI editor.
+2. Launch MATLAB R2021b and upload the contents of the file into the GUI editor. Issues may be present on newer versions.
 3. Some assets may be missing (images and such), so make sure that any problematic code is removed. 
 
