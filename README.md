@@ -44,4 +44,4 @@ Nsm = app.orbits_transition_moon;
 ```
 
 ## Profile & Contact
-- [Connect with me on Linkedin](linkedin.com/in/aadhav-ilangovan/)
+- [Connect with me on Linkedin](https://www.linkedin.com/in/aadhav-ilangovan/)
